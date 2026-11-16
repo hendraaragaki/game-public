@@ -1,11 +1,11 @@
 // The game's rules and state, with no drawing and no browser in it: the gondola, the window
-// grid, spray and water, the hazards (pigeons, falling tools, wind), lives, the shift timer and
-// the three buildings. step() advances one fixed step and returns what happened as bit flags,
+// grid, spray and water, the hazards (sprites, falling shards, wind), lives, the festival timer and
+// the three towers. step() advances one fixed step and returns what happened as bit flags,
 // so the caller can react (sound, announcements) without the world knowing about screens or
 // sound. Nothing here allocates after createWorld returns: windows, hazards, particles and
 // floaters all live in pools allocated at boot.
 
-import { COMBO, FACE, FIELD, GONDOLA, LEVELS, LIVES, PIGEON, POOL, SCORE, STEP, TOOL, WIND, WINDOW } from './config.js';
+import { COMBO, FACE, FIELD, GONDOLA, LEVELS, LIVES, SPRITE, POOL, SCORE, STEP, SHARD, WIND, WINDOW } from './config.js';
 
 export const EVENT_CLEAN = 1;
 export const EVENT_HIT = 2;
@@ -14,7 +14,7 @@ export const EVENT_LEVEL = 8;
 export const EVENT_WIN = 16;
 export const EVENT_GUST = 32;
 export const EVENT_REFILL = 64;
-export const EVENT_PIGEON = 128;
+export const EVENT_SPRITE = 128;
 export const EVENT_WARN = 256;
 export const EVENT_EMPTY = 512;
 
@@ -38,13 +38,13 @@ export function createWorld(random) {
   for (let index = 0; index < MAX_WINDOWS; index += 1) {
     windows.push({ active: false, x: 0, y: 0, w: 0, h: 0, dirt: 0, initialDirt: 0, sinceSpray: 0, clean: false });
   }
-  const pigeons = [];
-  for (let index = 0; index < POOL.pigeons; index += 1) {
-    pigeons.push({ active: false, x: 0, y: 0, vx: 0, phase: 0, dropped: false });
+  const sprites = [];
+  for (let index = 0; index < POOL.sprites; index += 1) {
+    sprites.push({ active: false, x: 0, y: 0, vx: 0, phase: 0, dropped: false });
   }
-  const tools = [];
-  for (let index = 0; index < POOL.tools; index += 1) {
-    tools.push({ active: false, x: 0, y: 0, vy: 0, warn: 0, angle: 0, spin: 0 });
+  const shards = [];
+  for (let index = 0; index < POOL.shards; index += 1) {
+    shards.push({ active: false, x: 0, y: 0, vy: 0, warn: 0, angle: 0, spin: 0 });
   }
   const particles = [];
   for (let index = 0; index < POOL.particles; index += 1) {
@@ -56,10 +56,10 @@ export function createWorld(random) {
   }
   const wind = { active: false, dir: 1, strength: 0, left: 0, nextIn: 8 };
   const state = {
-    gondola, windows, pigeons, tools, particles, floaters, wind,
+    gondola, windows, sprites, shards, particles, floaters, wind,
     level: 1, score: 0, combo: 0, comboTimer: 0, lives: LIVES,
     timeLeft: 0, cleaned: 0, totalWindows: 0, elapsed: 0,
-    pigeonTimer: 6, toolTimer: 5, shake: 0, buildingDone: false, over: false,
+    spriteTimer: 6, shardTimer: 5, shake: 0, towerDone: false, over: false,
     lastBonus: 0, lastReason: '',
   };
 
@@ -96,7 +96,7 @@ export function createWorld(random) {
     const f = freeFloater();
     if (f === null) return;
     f.active = true;
-    f.x = x;
+    f.x = x + (Math.random() - 0.5) * 30;
     f.y = y;
     f.text = text;
     f.life = 1.1;
@@ -105,7 +105,7 @@ export function createWorld(random) {
     f.size = size || 20;
   }
 
-  /** Lay out the window grid for the current building and reset the shift. */
+  /** Lay out the window grid for the current tower and reset the festival timer. */
   function startLevel(level) {
     state.level = level;
     const cfg = LEVELS[level - 1];
@@ -132,9 +132,9 @@ export function createWorld(random) {
     for (let index = count; index < windows.length; index += 1) windows[index].active = false;
     state.totalWindows = count;
     state.cleaned = 0;
-    state.timeLeft = cfg.shiftSeconds;
+    state.timeLeft = cfg.timeSeconds;
     state.elapsed = 0;
-    state.buildingDone = false;
+    state.towerDone = false;
     state.over = false;
     gondola.x = FIELD.width / 2;
     gondola.y = 90;
@@ -144,14 +144,14 @@ export function createWorld(random) {
     gondola.spraying = false;
     gondola.invuln = 0;
     gondola.stun = 0;
-    for (const p of pigeons) p.active = false;
-    for (const t of tools) t.active = false;
+    for (const p of sprites) p.active = false;
+    for (const t of shards) t.active = false;
     for (const p of particles) p.active = false;
     for (const f of floaters) f.active = false;
     wind.active = false;
     wind.nextIn = cfg.windEvery[0] + random() * (cfg.windEvery[1] - cfg.windEvery[0]);
-    state.pigeonTimer = cfg.pigeonEvery[0] + random() * (cfg.pigeonEvery[1] - cfg.pigeonEvery[0]);
-    state.toolTimer = cfg.toolEvery[0] + random() * (cfg.toolEvery[1] - cfg.toolEvery[0]);
+    state.spriteTimer = cfg.spriteEvery[0] + random() * (cfg.spriteEvery[1] - cfg.spriteEvery[0]);
+    state.shardTimer = cfg.shardEvery[0] + random() * (cfg.shardEvery[1] - cfg.shardEvery[0]);
   }
 
   function reset() {
@@ -210,15 +210,15 @@ export function createWorld(random) {
     return events | EVENT_HIT;
   }
 
-  function spawnPigeon() {
-    for (let index = 0; index < pigeons.length; index += 1) {
-      const p = pigeons[index];
+  function spawnSprite() {
+    for (let index = 0; index < sprites.length; index += 1) {
+      const p = sprites[index];
       if (p.active) continue;
       const fromLeft = random() < 0.5;
       p.active = true;
       p.x = fromLeft ? -30 : FIELD.width + 30;
       p.y = FACE.y + 60 + random() * (FACE.height - 140);
-      p.vx = (fromLeft ? 1 : -1) * (PIGEON.speedMin + random() * (PIGEON.speedMax - PIGEON.speedMin));
+      p.vx = (fromLeft ? 1 : -1) * (SPRITE.speedMin + random() * (SPRITE.speedMax - SPRITE.speedMin));
       p.phase = random() * TWO_PI;
       p.dropped = false;
       return true;
@@ -226,15 +226,15 @@ export function createWorld(random) {
     return false;
   }
 
-  function spawnTool() {
-    for (let index = 0; index < tools.length; index += 1) {
-      const t = tools[index];
+  function spawnShard() {
+    for (let index = 0; index < shards.length; index += 1) {
+      const t = shards[index];
       if (t.active) continue;
       t.active = true;
       t.x = FACE.x + 60 + random() * (FACE.width - 120);
       t.y = FACE.y + 6;
       t.vy = 0;
-      t.warn = TOOL.warnSeconds;
+      t.warn = SHARD.warnSeconds;
       t.angle = random() * TWO_PI;
       t.spin = (random() < 0.5 ? -1 : 1) * (3 + random() * 4);
       return true;
@@ -286,11 +286,11 @@ export function createWorld(random) {
       gondola.water = Math.max(0, gondola.water - GONDOLA.waterUse * dt);
       const nx = gondola.x + Math.cos(gondola.aimAngle) * 34;
       const ny = gondola.y + Math.sin(gondola.aimAngle) * 10;
-      for (let i = 0; i < 5; i += 1) {
+      for (let i = 0; i < 6; i += 1) {
         const spread = (random() - 0.5) * GONDOLA.sprayHalfAngle * 2;
         const a = gondola.aimAngle + spread;
         const s = 520 + random() * 200;
-        spawnParticle(2, nx, ny, Math.cos(a) * s, Math.sin(a) * s, 0.3 + random() * 0.2, 2, '#bfe9ff');
+        spawnParticle(2, nx, ny, Math.cos(a) * s, Math.sin(a) * s, 0.3 + random() * 0.2, 3, '#bfe9ff');
       }
       for (let index = 0; index < windows.length; index += 1) {
         const w = windows[index];
@@ -336,8 +336,8 @@ export function createWorld(random) {
       }
     }
 
-    // --- shift timer ---
-    if (!state.buildingDone) {
+    // --- festival timer ---
+    if (!state.towerDone) {
       state.timeLeft -= dt;
       if (state.timeLeft <= 0) {
         state.timeLeft = 0;
@@ -365,14 +365,14 @@ export function createWorld(random) {
       }
     }
 
-    // --- pigeons ---
-    state.pigeonTimer -= dt;
-    if (state.pigeonTimer <= 0) {
-      if (spawnPigeon()) events |= EVENT_PIGEON;
-      state.pigeonTimer = cfg.pigeonEvery[0] + random() * (cfg.pigeonEvery[1] - cfg.pigeonEvery[0]);
+    // --- sprites ---
+    state.spriteTimer -= dt;
+    if (state.spriteTimer <= 0) {
+      if (spawnSprite()) events |= EVENT_SPRITE;
+      state.spriteTimer = cfg.spriteEvery[0] + random() * (cfg.spriteEvery[1] - cfg.spriteEvery[0]);
     }
-    for (let index = 0; index < pigeons.length; index += 1) {
-      const p = pigeons[index];
+    for (let index = 0; index < sprites.length; index += 1) {
+      const p = sprites[index];
       if (!p.active) continue;
       p.phase += dt * 9;
       p.x += p.vx * dt;
@@ -395,33 +395,33 @@ export function createWorld(random) {
           }
         }
         if (nearest !== null && nearestD < 120 && !nearest.clean) {
-          nearest.dirt = Math.min(nearest.initialDirt, nearest.dirt + PIGEON.dropDirt);
-          spawnFloater(nearest.x + nearest.w / 2, nearest.y, 'Pigeon!', '#c9c2b4', 15);
+          nearest.dirt = Math.min(nearest.initialDirt, nearest.dirt + SPRITE.dropDirt);
+          spawnFloater(nearest.x + nearest.w / 2, nearest.y, 'Sprite!', '#ff9ecf', 15);
         }
       }
       const gx = gondola.x;
       const gy = gondola.y - 8;
-      if (Math.hypot(p.x - gx, p.y - gy) < PIGEON.radius + 26) {
+      if (Math.hypot(p.x - gx, p.y - gy) < SPRITE.radius + 26) {
         p.active = false;
         events = hitGondola(events, p.x);
         if (events & EVENT_OVER) return events;
       }
     }
 
-    // --- falling tools ---
-    state.toolTimer -= dt;
-    if (state.toolTimer <= 0) {
-      if (spawnTool()) events |= EVENT_WARN;
-      state.toolTimer = cfg.toolEvery[0] + random() * (cfg.toolEvery[1] - cfg.toolEvery[0]);
+    // --- falling shards ---
+    state.shardTimer -= dt;
+    if (state.shardTimer <= 0) {
+      if (spawnShard()) events |= EVENT_WARN;
+      state.shardTimer = cfg.shardEvery[0] + random() * (cfg.shardEvery[1] - cfg.shardEvery[0]);
     }
-    for (let index = 0; index < tools.length; index += 1) {
-      const t = tools[index];
+    for (let index = 0; index < shards.length; index += 1) {
+      const t = shards[index];
       if (!t.active) continue;
       if (t.warn > 0) {
         t.warn -= dt;
         continue;
       }
-      t.vy = TOOL.fallSpeed;
+      t.vy = SHARD.fallSpeed;
       t.y += t.vy * dt;
       t.angle += t.spin * dt;
       if (t.y > FACE.y + FACE.height - 8) {
@@ -431,16 +431,16 @@ export function createWorld(random) {
         }
         continue;
       }
-      if (Math.hypot(t.x - gondola.x, t.y - (gondola.y - 8)) < TOOL.radius + 26) {
+      if (Math.hypot(t.x - gondola.x, t.y - (gondola.y - 8)) < SHARD.radius + 26) {
         t.active = false;
         events = hitGondola(events, t.x);
         if (events & EVENT_OVER) return events;
       }
     }
 
-    // --- building cleared? ---
-    if (!state.buildingDone && state.cleaned >= state.totalWindows) {
-      state.buildingDone = true;
+    // --- tower cleared? ---
+    if (!state.towerDone && state.cleaned >= state.totalWindows) {
+      state.towerDone = true;
       state.lastBonus = Math.round(state.timeLeft) * SCORE.timeBonus + state.lives * SCORE.lifeBonus;
       state.score += state.lastBonus;
       events |= EVENT_LEVEL;
@@ -453,8 +453,8 @@ export function createWorld(random) {
 
   /**
    * Test-only hook (used by the soak script, never by the game itself): 'hurt' applies one
-   * hit to the gondola, 'clear' cleans every window so the next step clears the building,
-   * 'timeout' leaves a hair of shift time so the next step ends the shift. Returns events.
+   * hit to the gondola, 'clear' cleans every window so the next step clears the tower,
+   * 'timeout' leaves a hair of festival time so the next step ends the festival. Returns events.
    */
   function debug(action) {
     if (action === 'hurt') return hitGondola(0, gondola.x + 100);

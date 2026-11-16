@@ -2,12 +2,12 @@
 // area; the renderer scales it to the window, so no rule below depends on the screen size.
 //
 // The game: "Gondola Langit". You ride a gondola platform down the face of a tower and spray
-// dirty windows clean before the shift timer runs out. Water refills only at the roof, so every
-// trip down is a tradeoff. Three buildings, taller, dirtier and windier each time.
+// dirty windows clean before the festival timer runs out. Water refills only at the roof, so every
+// trip down is a tradeoff. Three towers, taller, dirtier and windier each time.
 
 export const FIELD = { width: 1280, height: 720 };
 
-/** The building face the gondola rides on (the sky is the margin around it). */
+/** The tower face the gondola rides on (the sky is the margin around it). */
 export const FACE = { x: 140, y: 40, width: 1000, height: 640 };
 
 /** The simulation's fixed step, in seconds: 60 updates a second whatever the display's rate. */
@@ -28,13 +28,13 @@ export const GONDOLA = {
   /** Half-angle of the spray cone, in radians. */
   sprayHalfAngle: 0.32,
   /** Dirt removed per second from a window inside the spray cone. */
-  sprayRate: 42,
+  sprayRate: 46,
   /** Water spent per second while spraying. */
   waterUse: 30,
   /** Water regained per second while parked at the roof. */
   refillRate: 45,
   /** Tank capacity. */
-  tank: 100,
+  tank: 120,
   /** Gondola y (its centre) at or above this counts as "at the roof". */
   roofY: 96,
 };
@@ -48,11 +48,11 @@ export const WINDOW = {
   resoilRate: 1.5,
 };
 
-/** The three buildings: taller (more windows), dirtier, windier, longer shifts. */
+/** The three towers: taller (more windows), dirtier, windier, longer festivals. */
 export const LEVELS = [
-  { cols: 5, rows: 6, dirtMin: 50, dirtMax: 80, shiftSeconds: 120, pigeonEvery: [6.5, 10], toolEvery: [6, 9], windEvery: [12, 17], windStrength: 150 },
-  { cols: 6, rows: 7, dirtMin: 65, dirtMax: 90, shiftSeconds: 140, pigeonEvery: [5, 8], toolEvery: [4.5, 7], windEvery: [9, 14], windStrength: 230 },
-  { cols: 6, rows: 8, dirtMin: 70, dirtMax: 100, shiftSeconds: 160, pigeonEvery: [4, 6.5], toolEvery: [3.5, 6], windEvery: [7, 11], windStrength: 320 },
+  { cols: 5, rows: 6, dirtMin: 45, dirtMax: 70, timeSeconds: 120, spriteEvery: [6.5, 10], shardEvery: [6, 9], windEvery: [12, 17], windStrength: 150 },
+  { cols: 6, rows: 7, dirtMin: 65, dirtMax: 90, timeSeconds: 140, spriteEvery: [5, 8], shardEvery: [4.5, 7], windEvery: [9, 14], windStrength: 230 },
+  { cols: 6, rows: 8, dirtMin: 70, dirtMax: 100, timeSeconds: 160, spriteEvery: [4, 6.5], shardEvery: [3.5, 6], windEvery: [7, 11], windStrength: 320 },
 ];
 
 export const LIVES = 3;
@@ -64,47 +64,55 @@ export const COMBO = { windowSeconds: 4, step: 0.25, maxCombo: 12 };
 export const SCORE = { windowBase: 100, timeBonus: 10, lifeBonus: 150, winBonus: 1000 };
 
 /** Hazards. */
-export const PIGEON = { speedMin: 140, speedMax: 210, radius: 14, dropChance: 0.25, dropDirt: 12 };
-export const TOOL = { fallSpeed: 430, warnSeconds: 0.7, radius: 12 };
+export const SPRITE = { speedMin: 140, speedMax: 210, radius: 14, dropChance: 0.25, dropDirt: 12 };
+export const SHARD = { fallSpeed: 430, warnSeconds: 0.7, radius: 12 };
 export const WIND = { gustSeconds: [2.5, 3.5] };
 
 /** How many of each thing can exist at once; pools are allocated once, at boot. */
-export const POOL = { pigeons: 8, tools: 6, particles: 320, floaters: 32, droplets: 160 };
+export const POOL = { sprites: 8, shards: 6, particles: 320, floaters: 32, droplets: 160 };
 
 export const PALETTE = {
-  skyTop: '#2b3a67',
-  skyMid: '#7d90c2',
-  skyBottom: '#f2c98a',
-  sun: '#ffd98a',
-  face: '#8a7f74',
-  faceDark: '#6e645a',
-  floorLine: '#5d5348',
-  frame: '#3e3a36',
-  glassClean: '#a8d8ea',
-  glassCleanDeep: '#6fb3d4',
-  glassDirty: '#5c4a33',
-  grime: '#4a3a26',
-  gondola: '#c8552e',
-  gondolaDark: '#8f3a1e',
-  cable: '#2b2b2b',
-  worker: '#f2c94c',
-  workerSkin: '#e8b48a',
-  hardHat: '#f2c94c',
+  skyTop: '#5a4fcf',
+  skyMid: '#ff7eb9',
+  skyBottom: '#ffc46b',
+  sun: '#fff3a0',
+  face: '#c9a7ff',
+  faceDark: '#9d7fe0',
+  floorLine: '#8a6fd6',
+  frame: '#5b4a8a',
+  glassClean: '#a8ecff',
+  glassCleanDeep: '#6fc3f2',
+  glassDirty: '#8a6a9e',
+  grime: '#3d2a5a',
+  gondola: '#ff5fa2',
+  gondolaDark: '#d6336c',
+  cable: '#4a2a5a',
+  hair: '#ff5fa2',
+  hairDark: '#d6336c',
+  skin: '#ffe0c2',
+  outfit: '#ffffff',
+  collar: '#ff5fa2',
+  scarf: '#ff4757',
+  skirt: '#7b5cff',
   water: '#4fc3f7',
   waterEmpty: '#5a6b7a',
-  pigeon: '#8b93a3',
-  pigeonDark: '#5d6472',
-  tool: '#c9ced6',
-  toolDark: '#7a828e',
-  text: '#f4efe6',
-  textDark: '#241f1a',
-  muted: '#c9c2b4',
-  panel: '#241f1a',
-  panelEdge: '#f2c94c',
-  danger: '#e5534b',
-  gold: '#f2c94c',
+  sprite: '#ffffff',
+  spriteDark: '#c9b8e8',
+  beak: '#ff9a3d',
+  cheek: '#ff9ecf',
+  shard: '#ffd93d',
+  shardDark: '#ff9a3d',
+  text: '#fff7f0',
+  textDark: '#2a1a4a',
+  muted: '#e8d5ff',
+  panel: '#2a1a4a',
+  panelEdge: '#ff7eb9',
+  danger: '#ff4757',
+  gold: '#ffd93d',
   combo: '#ff9a3d',
   spray: '#bfe9ff',
+  sparkle: '#ffffff',
+  petal: '#ffb3d9',
 };
 
 export const FONT = 'system-ui, -apple-system, "Segoe UI", sans-serif';

@@ -142,7 +142,7 @@ export function createAudio() {
     refill() {
       tone(420, 0.12, 'sine', 0.14, 840);
     },
-    pigeon() {
+    sprite() {
       tone(520, 0.09, 'triangle', 0.12, 380);
       tone(430, 0.12, 'triangle', 0.1, 330, 0.11);
     },

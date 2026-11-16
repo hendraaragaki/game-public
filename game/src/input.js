@@ -1,5 +1,5 @@
 // Keyboard and pointer input. Held keys give a steering direction and a spray state; one-shot
-// presses (start, restart, pause, mute, next building) are queued as bit flags and taken once by
+// presses (start, restart, pause, mute, next tower) are queued as bit flags and taken once by
 // the loop, so a press between two frames is never lost and never counted twice. The pointer
 // aims the spray nozzle and can spray, start and restart; its position is kept in client pixels
 // and converted to field coordinates by the caller (the renderer owns the scale).

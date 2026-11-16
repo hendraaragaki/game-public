@@ -2,7 +2,7 @@
 // forward from a fresh world for a fixed number of steps, steered by a simple autopilot, so
 // the frame is what a short game really looks like and the same seed always gives the same
 // frame. The play and mid scenes use a careful pilot (clean the nearest dirty window, dodge
-// hazards); the end scene uses a reckless one that steers into pigeons and tools, so it loses
+// hazards); the end scene uses a reckless one that steers into sprites and shards, so it loses
 // its three lives the way a hurried player does.
 
 import { FIELD, STEP } from './config.js';
@@ -14,7 +14,7 @@ const PLAY_SECONDS = 26;
 const MID_SECONDS = 22;
 const END_LIMIT_SECONDS = 240;
 
-/** The nearest dirty window to the gondola, or null when the building is clean. */
+/** The nearest dirty window to the gondola, or null when the tower is clean. */
 function nearestDirtyWindow(state) {
   const g = state.gondola;
   let best = null;
@@ -31,27 +31,27 @@ function nearestDirtyWindow(state) {
   return best;
 }
 
-/** The nearest live hazard (a pigeon, or a tool already falling) to the gondola. */
+/** The nearest live hazard (a sprite, or a shard already falling) to the gondola. */
 function nearestThreat(state) {
   const g = state.gondola;
   let best = null;
   let bestD = Infinity;
-  for (let index = 0; index < state.pigeons.length; index += 1) {
-    const p = state.pigeons[index];
+  for (let index = 0; index < state.sprites.length; index += 1) {
+    const p = state.sprites[index];
     if (!p.active) continue;
     const d = Math.hypot(p.x - g.x, p.y - g.y);
     if (d < bestD) {
       bestD = d;
-      best = { x: p.x, y: p.y, kind: 'pigeon' };
+      best = { x: p.x, y: p.y, kind: 'sprite' };
     }
   }
-  for (let index = 0; index < state.tools.length; index += 1) {
-    const t = state.tools[index];
+  for (let index = 0; index < state.shards.length; index += 1) {
+    const t = state.shards[index];
     if (!t.active || t.warn > 0) continue;
     const d = Math.hypot(t.x - g.x, t.y - g.y);
     if (d < bestD) {
       bestD = d;
-      best = { x: t.x, y: t.y, kind: 'tool' };
+      best = { x: t.x, y: t.y, kind: 'shard' };
     }
   }
   return best === null || bestD > 150 ? null : best;
@@ -76,9 +76,9 @@ function autopilot(state, reckless) {
     return { dx, dy: g.y > 100 ? -1 : 0, spraying: false, aimX: g.x, aimY: g.y - 100, aimSeen: true };
   }
   if (threat !== null) {
-    // Run from the hazard: sideways away from it, and up if it is a falling tool.
-    const dx = threat.kind === 'tool' ? Math.sign(g.x - threat.x) || 1 : Math.sign(g.x - threat.x) || 1;
-    const dy = threat.kind === 'tool' ? 0 : Math.sign(g.y - threat.y) || 0;
+    // Run from the hazard: sideways away from it, and up if it is a falling shard.
+    const dx = threat.kind === 'shard' ? Math.sign(g.x - threat.x) || 1 : Math.sign(g.x - threat.x) || 1;
+    const dy = threat.kind === 'shard' ? 0 : Math.sign(g.y - threat.y) || 0;
     return { dx, dy, spraying: false, aimX: g.x, aimY: g.y - 100, aimSeen: true };
   }
   const target = nearestDirtyWindow(state);

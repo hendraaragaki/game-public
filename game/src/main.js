@@ -1,13 +1,13 @@
 // Boot and the one loop: input is read every frame, the world advances in fixed 1/60 s steps
 // (several in a slow frame, none in a fast one), and the renderer paints what is there. The
-// game moves between six screens: title, play, building clear, paused, game over and win.
+// game moves between six screens: title, play, tower clear, paused, game over and win.
 //
 // ?seed=N fixes the random pattern. ?shot=start|play|mid|end (with &seed=N) stages that scene
 // instead of running the loop, paints it twice and sets window.__shotReady for a screenshot.
 
 import { BEST_KEY, LIVES, STEP } from './config.js';
 import { createRandom } from './random.js';
-import { createWorld, EVENT_CLEAN, EVENT_EMPTY, EVENT_GUST, EVENT_HIT, EVENT_LEVEL, EVENT_OVER, EVENT_PIGEON, EVENT_REFILL, EVENT_WARN, EVENT_WIN } from './world.js';
+import { createWorld, EVENT_CLEAN, EVENT_EMPTY, EVENT_GUST, EVENT_HIT, EVENT_LEVEL, EVENT_OVER, EVENT_SPRITE, EVENT_REFILL, EVENT_WARN, EVENT_WIN } from './world.js';
 import { ACTION_CONFIRM, ACTION_MUTE, ACTION_PAUSE, createInput } from './input.js';
 import { createAudio } from './audio.js';
 import { createRenderer, SCREEN_LEVEL, SCREEN_OVER, SCREEN_PAUSED, SCREEN_PLAY, SCREEN_TITLE, SCREEN_WIN } from './render.js';
@@ -92,7 +92,7 @@ function runGame() {
     world.reset();
     accumulator = 0;
     setScreen(SCREEN_PLAY);
-    announce(`Playing. Building 1. ${LIVES} lives. Clean every window before the shift ends.`);
+    announce(`Playing. Tower 1. ${LIVES} lives. Clean every window before the festival begins.`);
   }
 
   function finishRun(win) {
@@ -106,7 +106,7 @@ function runGame() {
       announce(`Tower complete! Final score ${world.state.score}. Best ${best}.`);
     } else {
       audio.lose();
-      announce(`Shift over. Score ${world.state.score}. Best ${best}.`);
+      announce(`Time's up! Score ${world.state.score}. Best ${best}.`);
     }
   }
 
@@ -115,7 +115,7 @@ function runGame() {
     if (events & EVENT_HIT) audio.hit();
     if (events & EVENT_GUST) audio.gust();
     if (events & EVENT_REFILL) audio.refill();
-    if (events & EVENT_PIGEON) audio.pigeon();
+    if (events & EVENT_SPRITE) audio.sprite();
     if (events & EVENT_WARN) audio.warn();
     if (events & EVENT_EMPTY) announce('Tank empty. Back to the roof to refill!');
     if (events & EVENT_LEVEL) {
@@ -124,7 +124,7 @@ function runGame() {
       } else {
         audio.levelClear();
         setScreen(SCREEN_LEVEL);
-        announce(`Building ${world.state.level} clear! Bonus ${world.state.lastBonus}.`);
+        announce(`Tower ${world.state.level} sparkles! Bonus ${world.state.lastBonus}.`);
       }
     } else if (events & EVENT_OVER) {
       finishRun(false);
@@ -171,7 +171,7 @@ function runGame() {
         world.startLevel(world.state.level + 1);
         accumulator = 0;
         setScreen(SCREEN_PLAY);
-        announce(`Building ${world.state.level}. Clean every window before the shift ends.`);
+        announce(`Tower ${world.state.level}. Clean every window before the festival begins.`);
       }
       return;
     }
@@ -221,7 +221,7 @@ function runGame() {
     renderer.draw(world.state, screen, best, { muted: audio.isMuted() });
   }
 
-  // Leaving the tab pauses a running game rather than letting the shift run out unseen.
+  // Leaving the tab pauses a running game rather than letting the festival run out unseen.
   document.addEventListener('visibilitychange', () => {
     if (document.hidden && screen === SCREEN_PLAY) {
       setScreen(SCREEN_PAUSED);

@@ -7,10 +7,9 @@
 
 A 2D arcade game built by an AI agent for make.fun's **"Make the best game"** bounty ($1,000 in USDC).
 
-You ride a gondola platform down a tower face, cleaning dirty windows before the
-shift timer ends. The idea is personal: the person this was built for worked as a
-Gondola Man at PT Jayatama in 2022–2023 and still keeps his gondola-operator
-certificate in his wallet.
+Sora rides her sparkle gondola down the Sky Tower, cleaning every window before the
+Sky Festival begins. The tower must shine when the festival lights come on — and the
+grime spirits living on the glass have other ideas.
 
 ## How to play
 
@@ -23,24 +22,24 @@ certificate in his wallet.
 | M | Mute |
 | Enter / Space | Start / restart |
 
-Clean every window in a building before the timer runs out to move to the next
-one. There are 3 buildings — taller, dirtier and windier each time.
+Clean every window in a tower before the timer runs out to move to the next
+one. There are 3 towers — taller, dirtier and windier each time.
 
 - **Water tank** drains while you spray and refills only at the roof.
 - **Combo** builds when you clean windows in a streak (up to x12).
 - **Half-clean windows re-soil** slowly if you ignore them; fully clean windows stay clean.
-- **Hazards:** pigeons knock you and dirty a window, falling tools must be dodged, wind gusts push the gondola.
-- **Lose** when the timer runs out or you take 3 hits. **Win** by cleaning all 3 buildings.
+- **Hazards:** sky sprites knock you and dirty a window, falling star shards must be dodged, wind gusts push the gondola.
+- **Lose** when the timer runs out or you take 3 hits. **Win** by cleaning all 3 towers.
 
 Score comes from cleaned windows, combo multipliers, time and life bonuses, plus a
-building-clear bonus. Your best score is saved in the browser.
+tower-clear bonus. Your best score is saved in the browser.
 
 ## Screenshots
 
 ![Title screen](screenshots/1-start.jpg)
 ![Cleaning in progress](screenshots/2-play.jpg)
-![Second building](screenshots/3-mid.jpg)
-![Shift over](screenshots/4-end.jpg)
+![Second tower](screenshots/3-mid.jpg)
+![Time's up!](screenshots/4-end.jpg)
 
 ## Run it
 
