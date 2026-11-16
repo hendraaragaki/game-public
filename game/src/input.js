@@ -25,6 +25,7 @@ export function createInput(target) {
   let down = false;
   let sprayKey = false;
   let sprayPointer = false;
+  let sprayTouch = false;
   let actions = 0;
   let mouseX = 0;
   let mouseY = 0;
@@ -62,7 +63,60 @@ export function createInput(target) {
     down = false;
     sprayKey = false;
     sprayPointer = false;
+    sprayTouch = false;
   });
+
+  // On-screen touch D-pad (#touch in index.html): the same direction and spray flags as the
+  // keyboard, so the game logic never knows which one is held. The buttons are siblings of
+  // the canvas, so their presses never reach the canvas pointer handlers; stopPropagation
+  // and preventDefault keep a D-pad tap from starting the game or spraying through the
+  // canvas. Holding a button holds the direction (like holding a key); each finger is
+  // tracked by its own pointer, so LEFT + SPRAY can be held at once.
+  const touch = document.getElementById('touch');
+  if (touch) {
+    const setFlag = (button, on) => {
+      const dir = button.dataset.dir;
+      if (dir === 'left') left = on;
+      else if (dir === 'right') right = on;
+      else if (dir === 'up') up = on;
+      else if (dir === 'down') down = on;
+      else if (button.hasAttribute('data-spray')) sprayTouch = on;
+      button.classList.toggle('held', on);
+    };
+    touch.querySelectorAll('button').forEach((button) => {
+      const press = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        try { button.setPointerCapture(event.pointerId); } catch { /* no capture: mouse/pen */ }
+        setFlag(button, true);
+      };
+      const release = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setFlag(button, false);
+      };
+      button.addEventListener('pointerdown', press);
+      button.addEventListener('pointerup', release);
+      button.addEventListener('pointercancel', release);
+      button.addEventListener('lostpointercapture', () => setFlag(button, false));
+      // Older browsers without pointer events: touch events do the same job.
+      button.addEventListener('touchstart', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setFlag(button, true);
+      }, { passive: false });
+      button.addEventListener('touchend', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setFlag(button, false);
+      }, { passive: false });
+      button.addEventListener('touchcancel', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setFlag(button, false);
+      }, { passive: false });
+    });
+  }
 
   target.addEventListener('pointermove', (event) => {
     mouseX = event.clientX;
@@ -85,9 +139,9 @@ export function createInput(target) {
     direction() {
       return { x: (right ? 1 : 0) - (left ? 1 : 0), y: (down ? 1 : 0) - (up ? 1 : 0) };
     },
-    /** True while Space or the pointer button is held. */
+    /** True while Space, the pointer button, or the touch spray button is held. */
     spraying() {
-      return sprayKey || sprayPointer;
+      return sprayKey || sprayPointer || sprayTouch;
     },
     /** The pointer's last position in client pixels, and whether it has ever moved. */
     mouse() {

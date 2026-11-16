@@ -784,8 +784,8 @@ export function createRenderer(canvas) {
   const TITLE_LINES = [
     'Sora rides her sparkle gondola down the Sky Tower.',
     'Clean every window before the Sky Festival begins!',
-    'Move with WASD or arrows. Aim with the mouse.',
-    'Hold Space or click to spray. Water refills only at the roof.',
+    'Move with WASD, arrows, or the on-screen pad. Aim with the mouse.',
+    'Hold Space, click, or the spray button to spray. Water refills only at the roof.',
     'Sky sprites and falling star shards cost a life. Mind the wind.',
     '',
   ];
