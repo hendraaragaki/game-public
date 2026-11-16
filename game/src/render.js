@@ -6,7 +6,7 @@
 // Text that holds a number is rebuilt only when the number changes, so a frame allocates
 // nothing. All art is drawn on canvas; no copied characters, no external assets.
 
-import { FACE, FIELD, FONT, GONDOLA, LIVES, PALETTE } from './config.js';
+import { FACE, FIELD, FONT, GONDOLA, LEVELS, LIVES, PALETTE } from './config.js';
 
 export const SCREEN_TITLE = 'title';
 export const SCREEN_PLAY = 'play';
@@ -47,7 +47,6 @@ export function createRenderer(canvas) {
   const view = { scale: 1, x: 0, y: 0 };
   const scoreLabel = cachedLabel('Score ');
   const comboLabel = cachedLabel('Combo x');
-  const towerLabel = cachedLabel('Tower ');
   const cleanLabel = cachedLabel('');
   const finalLabel = cachedLabel('Score ');
   const bestLabel = cachedLabel('Best ');
@@ -697,7 +696,7 @@ export function createRenderer(canvas) {
     const secs = Math.floor(state.timeLeft % 60);
     const timeText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
     const timeColor = state.timeLeft < 20 ? PALETTE.danger : PALETTE.text;
-    outlineText(towerLabel(state.level), FIELD.width / 2, 16, 26, PALETTE.text, 'center');
+    outlineText(`Level ${state.level} / ${LEVELS.length}`, FIELD.width / 2, 16, 26, PALETTE.text, 'center');
     outlineText(timeText, FIELD.width / 2, 46, 24, timeColor, 'center');
     text(cleanLabel(`${state.cleaned}/${state.totalWindows} windows`), FIELD.width / 2, 74, 18, PALETTE.muted, 'center');
     // Lives as hearts in the left margin, clear of the gondola's reach.
@@ -783,7 +782,7 @@ export function createRenderer(canvas) {
 
   const TITLE_LINES = [
     'Sora rides her sparkle gondola down the Sky Tower.',
-    'Clean every window before the Sky Festival begins!',
+    'Clean every window on all 10 towers before the Sky Festival!',
     'Move with WASD, arrows, or the on-screen pad. Aim with the mouse.',
     'Hold Space, click, or the spray button to spray. Water refills only at the roof.',
     'Sky sprites and falling star shards cost a life. Mind the wind.',
@@ -816,10 +815,10 @@ export function createRenderer(canvas) {
     }
     drawHud(state);
     if (screen === SCREEN_LEVEL) {
-      LEVEL_LINES[0] = `Tower ${state.level} sparkles!`;
+      LEVEL_LINES[0] = `Level ${state.level} of ${LEVELS.length} clear — tower sparkles!`;
       LEVEL_LINES[1] = bonusLabel(state.lastBonus);
       LEVEL_LINES[2] = finalLabel(state.score);
-      drawPanel('Tower sparkles!', LEVEL_LINES, state.level >= 3 ? 'Press Space for the results' : 'Press Space for the next tower');
+      drawPanel(`Tower ${state.level} sparkles!`, LEVEL_LINES, state.level >= LEVELS.length ? 'Press Space for the results' : 'Press Space for the next tower');
     } else if (screen === SCREEN_PAUSED) {
       drawPanel('Paused', PAUSED_LINES, 'Press P to resume');
     } else if (screen === SCREEN_OVER) {
@@ -828,10 +827,10 @@ export function createRenderer(canvas) {
       OVER_LINES[2] = bestLabel(best);
       drawPanel("Time's up!", OVER_LINES, 'Press Space or click to play again');
     } else if (screen === SCREEN_WIN) {
-      WIN_LINES[0] = 'Every window on the tower sparkles.';
+      WIN_LINES[0] = 'Every window sparkles — the festival is ready!';
       WIN_LINES[1] = finalLabel(state.score);
       WIN_LINES[2] = bestLabel(best);
-      drawPanel('Tower complete!', WIN_LINES, 'Press Space or click to play again');
+      drawPanel('All 10 towers sparkle!', WIN_LINES, 'Press Space or click to play again');
     }
     if (extra && extra.muted) {
       plainText('MUTED (M)', FIELD.width - 16, FIELD.height - 28, 14, PALETTE.muted, 'right');

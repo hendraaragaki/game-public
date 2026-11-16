@@ -23,13 +23,13 @@ grime spirits living on the glass have other ideas.
 | Enter / Space | Start / restart |
 
 Clean every window in a tower before the timer runs out to move to the next
-one. There are 3 towers — taller, dirtier and windier each time.
+one. There are 10 towers — taller, dirtier and windier each time.
 
 - **Water tank** drains while you spray and refills only at the roof.
 - **Combo** builds when you clean windows in a streak (up to x12).
 - **Half-clean windows re-soil** slowly if you ignore them; fully clean windows stay clean.
 - **Hazards:** sky sprites knock you and dirty a window, falling star shards must be dodged, wind gusts push the gondola.
-- **Lose** when the timer runs out or you take 3 hits. **Win** by cleaning all 3 towers.
+- **Lose** when the timer runs out or you take 3 hits. **Win** by cleaning all 10 towers.
 
 Score comes from cleaned windows, combo multipliers, time and life bonuses, plus a
 tower-clear bonus. Your best score is saved in the browser.

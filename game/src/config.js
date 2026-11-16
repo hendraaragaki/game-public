@@ -3,7 +3,7 @@
 //
 // The game: "Gondola Langit". You ride a gondola platform down the face of a tower and spray
 // dirty windows clean before the festival timer runs out. Water refills only at the roof, so every
-// trip down is a tradeoff. Three towers, taller, dirtier and windier each time.
+// trip down is a tradeoff. Ten towers, taller, dirtier and windier each time.
 
 export const FIELD = { width: 1280, height: 720 };
 
@@ -48,11 +48,18 @@ export const WINDOW = {
   resoilRate: 1.5,
 };
 
-/** The three towers: taller (more windows), dirtier, windier, longer festivals. */
+/** The ten towers: taller (more windows), dirtier, windier, longer festivals. */
 export const LEVELS = [
-  { cols: 5, rows: 6, dirtMin: 45, dirtMax: 70, timeSeconds: 120, spriteEvery: [6.5, 10], shardEvery: [6, 9], windEvery: [12, 17], windStrength: 150 },
-  { cols: 6, rows: 7, dirtMin: 65, dirtMax: 90, timeSeconds: 140, spriteEvery: [5, 8], shardEvery: [4.5, 7], windEvery: [9, 14], windStrength: 230 },
-  { cols: 6, rows: 8, dirtMin: 70, dirtMax: 100, timeSeconds: 160, spriteEvery: [4, 6.5], shardEvery: [3.5, 6], windEvery: [7, 11], windStrength: 320 },
+  { cols: 5, rows: 6, dirtMin: 40, dirtMax: 60, timeSeconds: 120, spriteEvery: [6.5, 10], shardEvery: [6, 9], windEvery: [12, 17], windStrength: 150 },
+  { cols: 5, rows: 7, dirtMin: 50, dirtMax: 70, timeSeconds: 130, spriteEvery: [5.5, 9], shardEvery: [5, 8], windEvery: [10, 15], windStrength: 180 },
+  { cols: 6, rows: 6, dirtMin: 55, dirtMax: 75, timeSeconds: 140, spriteEvery: [5, 8], shardEvery: [4.5, 7], windEvery: [9, 14], windStrength: 230 },
+  { cols: 6, rows: 7, dirtMin: 60, dirtMax: 80, timeSeconds: 150, spriteEvery: [4.5, 7.5], shardEvery: [4, 6.5], windEvery: [8, 13], windStrength: 260 },
+  { cols: 6, rows: 8, dirtMin: 65, dirtMax: 85, timeSeconds: 160, spriteEvery: [4, 6.5], shardEvery: [3.5, 6], windEvery: [7, 11], windStrength: 320 },
+  { cols: 7, rows: 7, dirtMin: 70, dirtMax: 90, timeSeconds: 170, spriteEvery: [3.5, 6], shardEvery: [3, 5.5], windEvery: [6.5, 10], windStrength: 360 },
+  { cols: 7, rows: 8, dirtMin: 75, dirtMax: 95, timeSeconds: 180, spriteEvery: [3, 5.5], shardEvery: [2.8, 5], windEvery: [6, 9.5], windStrength: 400 },
+  { cols: 7, rows: 9, dirtMin: 80, dirtMax: 95, timeSeconds: 190, spriteEvery: [2.8, 5], shardEvery: [2.5, 4.5], windEvery: [5.5, 9], windStrength: 440 },
+  { cols: 8, rows: 9, dirtMin: 85, dirtMax: 100, timeSeconds: 200, spriteEvery: [2.5, 4.5], shardEvery: [2.2, 4], windEvery: [5, 8], windStrength: 480 },
+  { cols: 8, rows: 10, dirtMin: 90, dirtMax: 100, timeSeconds: 210, spriteEvery: [2.2, 4], shardEvery: [2, 3.5], windEvery: [4.5, 7.5], windStrength: 520 },
 ];
 
 export const LIVES = 3;

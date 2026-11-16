@@ -103,7 +103,7 @@ function runGame() {
     setScreen(win ? SCREEN_WIN : SCREEN_OVER);
     if (win) {
       audio.win();
-      announce(`Tower complete! Final score ${world.state.score}. Best ${best}.`);
+      announce(`All 10 towers sparkle! Final score ${world.state.score}. Best ${best}.`);
     } else {
       audio.lose();
       announce(`Time's up! Score ${world.state.score}. Best ${best}.`);

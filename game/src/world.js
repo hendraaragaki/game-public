@@ -1,6 +1,6 @@
 // The game's rules and state, with no drawing and no browser in it: the gondola, the window
 // grid, spray and water, the hazards (sprites, falling shards, wind), lives, the festival timer and
-// the three towers. step() advances one fixed step and returns what happened as bit flags,
+// the ten towers. step() advances one fixed step and returns what happened as bit flags,
 // so the caller can react (sound, announcements) without the world knowing about screens or
 // sound. Nothing here allocates after createWorld returns: windows, hazards, particles and
 // floaters all live in pools allocated at boot.
@@ -18,7 +18,7 @@ export const EVENT_SPRITE = 128;
 export const EVENT_WARN = 256;
 export const EVENT_EMPTY = 512;
 
-const MAX_WINDOWS = 48;
+const MAX_WINDOWS = 80;
 const TWO_PI = Math.PI * 2;
 
 function angleDiff(a, b) {
